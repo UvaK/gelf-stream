@@ -1,6 +1,6 @@
 {
   "name": "gelf-stream-renewed",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A stream to send JS objects to a Graylog2 server (in GELF format)",
   "author": "Konstantin Uvarov <konstantin.uvarov@gmail.com> (https://github.com/uvak)",
   "contributors": [
