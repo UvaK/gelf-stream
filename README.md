@@ -15,7 +15,7 @@ Example
 ```javascript
 var split = require('split'),
     bunyan = require('bunyan'),
-    gelfStream = require('gelf-stream')
+    gelfStream = require('gelf-stream-renewed')
 
 // gelf-stream comes with Bunyan support
 
