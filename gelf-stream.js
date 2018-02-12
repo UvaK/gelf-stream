@@ -44,6 +44,20 @@ function create(host, port, options) {
 }
 
 // ---------------------------
+// Bole stuff
+// ---------------------------
+
+function mapBoleGelfLevel(boleLevel) {
+  switch (boleLevel) {
+    case 'debug': return gelfling.DEBUG
+    case 'info':  return gelfling.INFO
+    case 'warn':  return gelfling.WARNING
+    case 'error': return gelfling.ERROR
+    default:      return gelfling.EMERGENCY
+  }
+}
+
+// ---------------------------
 // Bunyan stuff
 // ---------------------------
 
@@ -58,6 +72,10 @@ function mapGelfLevel(bunyanLevel) {
     default:                  return gelfling.WARNING
   }
 }
+
+// ---------------------------
+// Common stuff
+// ---------------------------
 
 function flatten(obj, into, prefix, sep) {
   if (into == null) into = {}
@@ -75,7 +93,7 @@ function flatten(obj, into, prefix, sep) {
   return into
 }
 
-function prepareBunyanToGelf(addFlattened) {
+function loggerToGelf(logger, addFlattened) {
   return function(log) {
     /*jshint camelcase:false */
     var errFile, key,
@@ -84,9 +102,9 @@ function prepareBunyanToGelf(addFlattened) {
         gelfMsg = {
           host:          log.hostname,
           timestamp:     +new Date(log.time) / 1000,
-          short_message: log.msg,
+          short_message: logger=='bunyan' ? log.msg : log.message,
           facility:      log.name,
-          level:         gelfStream.mapGelfLevel(log.level),
+          level:         logger=='bunyan' ? mapGelfLevel(log.level) : mapBoleGelfLevel(log.level),
           full_message:  JSON.stringify(log, null, 2)
         }
 
@@ -105,26 +123,27 @@ function prepareBunyanToGelf(addFlattened) {
   }
 }
 
-function forBunyan(host, port, options) {
-  if (options == null && typeof port === 'object') {
-    options = port
-    port = null
-    if (options == null && typeof host === 'object') {
-      options = host
-      host = null
+function forLogger(logger) {
+  return function(host, port, options) {
+    if (options == null && typeof port === 'object') {
+      options = port
+      port = null
+      if (options == null && typeof host === 'object') {
+        options = host
+        host = null
+      }
     }
+    if (options == null) options = {}
+
+    var addFlattened = options.addFlattened == null ? true : Boolean(options.addFlattened);
+    options.map = loggerToGelf(logger, addFlattened)
+
+    return new GelfStream(host, port, options)
   }
-  if (options == null) options = {}
-
-  var addFlattened = options.addFlattened == null ? true : Boolean(options.addFlattened);
-
-  options.map = prepareBunyanToGelf(addFlattened)
-
-  return new GelfStream(host, port, options)
 }
 
 gelfStream.GelfStream = GelfStream
 gelfStream.create = create
-gelfStream.forBunyan = forBunyan
-gelfStream.mapGelfLevel = mapGelfLevel
+gelfStream.forBunyan = forLogger('bunyan')
+gelfStream.forBole = forLogger('bole')
 gelfStream.flatten = flatten
