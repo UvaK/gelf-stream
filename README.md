@@ -1,7 +1,5 @@
-gelf-stream
+gelf-stream-renewed
 -----------
-
-[![Build Status](https://secure.travis-ci.org/mhart/gelf-stream.png?branch=master)](http://travis-ci.org/mhart/gelf-stream)
 
 A node.js stream to send JS objects to a
 [Graylog2](http://graylog2.org/) server (in
@@ -49,11 +47,15 @@ API
 
 ### gelfStream.forBole([host], [port], [options])
 
+Options
+---
+`addFlattened` - has default value `true`. Please set to `false` if you want to disable message flattening.
+
 Installation
 ------------
 
 With [npm](http://npmjs.org/) do:
 
 ```
-npm install gelf-stream
+npm install gelf-stream-renewed
 ```
